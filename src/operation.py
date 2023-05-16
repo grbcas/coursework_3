@@ -3,53 +3,67 @@ from dataclasses import dataclass
 
 
 @dataclass
-class Operations:
-	operation_id: int
-	operation_state: str
-	operation_date: str
+class Operation:
+	operation_id: int = None
+	operation_state: str = None
+	operation_date: str = None
 	# operationAmount: dict
-	amount: str
+	amount: str = None
 	# currency: str
-	currency_name: str
-	currency_code: str
-	description: str
-	sender: str = 'null'
-	recipient: str = ''
+	currency_name: str = None
+	currency_code: str = None
+	description: str = None
+	sender: str = None
+	recipient: str = None
 
-	def convert_str2datetime(self):
+	def convert_str_to_datetime(self) -> str:
+		"""
+		Convert input string to "%Y.%m.%d"
+		:return: datetime
+		"""
 		data_datetime = datetime.datetime.strptime(self.operation_date, "%Y-%m-%dT%H:%M:%S.%f")
-		date_int = int(datetime.datetime.timestamp(data_datetime) * 10 ** 6)
-		print(f'{data_datetime} -> {date_int}')
+		# date_int = int(datetime.datetime.timestamp(data_datetime) * 10 ** 6)
+		# print(f'{data_datetime} -> {date_int}')
 		# return date_int, data_datetime.date().strftime("%Y.%m.%d")
 		return data_datetime.date().strftime("%Y.%m.%d")
 
-	def mask_num_sender(self):
-		nums = self.sender.split()[1]
-		account_type = self.sender.split()[0]
+	def mask_num_sender(self) -> str:
+		"""
+		Mask sender account digits
+		:return:
+		"""
+		nums = self.sender.split()[-1]
+		account_type = ' '.join(self.sender.split()[:-1])
 		if len(nums) == 16:
-			return f'{account_type} {nums[0:4]} {nums[4:6]} ****** {nums[-4:]}'
+			return f'{account_type} {nums[0:4]} {nums[4:6]}** **** {nums[-4:]}'
 		elif len(nums) == 20:
-			return f'{account_type} ** {nums[-4:]}'
+			return f'{account_type} **{nums[-4:]}'
 		else:
-			print(f'{account_type} {nums[0:4]} {nums[4:6]} ****** {nums[-4:]}')
+			return f'{account_type}'
 
-	def mask_num_recipient(self):
-		nums = self.recipient.split()[1]
-		account_type = self.recipient.split()[0]
+	def mask_num_recipient(self) -> str:
+		"""
+		Mask recipient account digits
+		:return:
+		"""
+		nums = self.recipient.split()[-1]
+		account_type = ' '.join(self.recipient.split()[:-1])
 		if len(nums) == 16:
-			return f'{account_type} {nums[0:4]} {nums[4:6]} ****** {nums[-4:]}'
+			return f'{account_type} {nums[0:4]} {nums[4:6]}** **** {nums[-4:]}'
 		elif len(nums) == 20:
-			return f'{account_type} ** {nums[-4:]}'
+			return f'{account_type} **{nums[-4:]}'
+		else:
+			return f'{account_type}'
 
 	def __repr__(self):
-		return f'\n{self.convert_str2datetime()} {self.description}' \
+		return f'\n{self.convert_str_to_datetime()} {self.description}' \
 			f'\n{self.mask_num_sender()} -> {self.mask_num_recipient()}' \
-			f'\n{self.amount}'
+			f'\n{self.amount} {self.currency_name}'
 
 	def __str__(self):
-		return f'\n{self.convert_str2datetime()} {self.description}' \
+		return f'\n{self.convert_str_to_datetime()} {self.description}' \
 			f'\n{self.mask_num_sender()} -> {self.mask_num_recipient()}' \
-			f'\n{self.amount}'
+			f'\n{self.amount} {self.currency_name}'
 
 
 if __name__ == '__main__':
@@ -71,7 +85,7 @@ if __name__ == '__main__':
 	transactions = []
 
 	for i in data:
-		transactions.append(Operations(
+		transactions.append(Operation(
 			operation_id=i['id'],
 			operation_state=i['state'],
 			operation_date=i['date'],
@@ -83,5 +97,5 @@ if __name__ == '__main__':
 			recipient=i['to'])
 			)
 
-	sorted_transactions = sorted(transactions, key=lambda operations: operations.convert_str2datetime(), reverse=True)
+	sorted_transactions = sorted(transactions, key=lambda operation: operation.convert_str_to_datetime(), reverse=True)
 	print(sorted_transactions)
