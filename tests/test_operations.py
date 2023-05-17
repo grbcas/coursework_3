@@ -20,7 +20,9 @@ def test_data():
         },
         'description': 'Перевод организации',
         'from': 'Maestro 1596837868705199',
-        'to': 'Счет 64686473678894779589'
+        'from_account': 'Счет 64686473678894779589',
+        'to': 'Счет 64686473678894779589',
+        'to_card': 'Maestro 1596837868705199'
     },
         '2019.08.26',
         'Maestro 1596 83** **** 5199',
@@ -75,3 +77,36 @@ def test_mask_num_sender_empty():
     operation.sender = 'None None'
     masked_account = operation.mask_num_sender()
     assert masked_account == 'None'
+
+
+def test_operation():
+    """
+    tests out of the Operation cls
+    :return:
+    """
+    assert str(Operation()) == '\n%Y.%m.%d None\nNone None -> None None\nNone None'
+
+
+def test_mask_num_sender_account(test_data):
+    """
+    masks the account number and is not displayed entirely in the format **XXXX
+    :param test_data:
+    :return:
+    """
+    data = test_data[0]
+    operation = Operation()
+    operation.sender = data.get('from_account')
+    masked_account = operation.mask_num_sender()
+    assert masked_account == test_data[3]
+
+def test_mask_num_recipient_card(test_data):
+    """
+    masks the card number and is not displayed entirely in XXX XXX** **** XXXX format
+    :param test_data:
+    :return: True
+    """
+    data = test_data[0]
+    operation = Operation()
+    operation.recipient = data.get('to_card')
+    masked_account = operation.mask_num_recipient()
+    assert masked_account == test_data[2]
