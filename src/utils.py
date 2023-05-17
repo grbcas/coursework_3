@@ -34,7 +34,7 @@ def get_data_from_json(path_to_json_file: Path) -> list:
 			data = json.load(f)
 		return data
 	except FileNotFoundError:
-		print('The file is not present.')
+		print('The file is not present')
 
 
 if __name__ == '__main__':
